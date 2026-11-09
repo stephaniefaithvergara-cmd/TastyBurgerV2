@@ -107,6 +107,37 @@ const products: Product[] = [
   },
 ];
 
+export function matchesSearch(product: Product, searchQuery: string): boolean {
+  const cleanQuery = searchQuery.trim().toLowerCase();
+  if (!cleanQuery) return true;
+
+  const terms = cleanQuery.split(/\s+/).filter(Boolean);
+  if (terms.length === 0) return true;
+
+  const name = product.name.toLowerCase();
+  const category = product.category.toLowerCase();
+  const categoryAliases: string[] = [];
+
+  if (category === "burgers") {
+    categoryAliases.push("burger", "burgers");
+  } else if (category === "fries") {
+    categoryAliases.push("fries", "fry", "french fries");
+  }
+
+  const badge = product.badge ? product.badge.toLowerCase() : "";
+  const description = product.description.toLowerCase();
+
+  return terms.every((term) => {
+    return (
+      name.includes(term) ||
+      category.includes(term) ||
+      categoryAliases.some((alias) => alias.includes(term) || term.includes(alias)) ||
+      badge.includes(term) ||
+      description.includes(term)
+    );
+  });
+}
+
 function FriesImage({ product }: { product: Product }) {
   const [index, setIndex] = useState(0);
   const images = product.images?.length ? product.images : [product.image];
@@ -152,13 +183,13 @@ function App() {
     return () => window.clearTimeout(t);
   }, [notice]);
 
-  const normalizedQuery = query.trim().toLowerCase();
-
-  const visibleProducts = useMemo(() => products.filter((product) => {
-    const categoryMatch = category === "All" || product.category === category;
-    const searchMatch = `${product.name} ${product.category}`.toLowerCase().includes(normalizedQuery);
-    return categoryMatch && searchMatch;
-  }), [category, normalizedQuery]);
+  const visibleProducts = useMemo(() => {
+    return products.filter((product) => {
+      const categoryMatch = category === "All" || product.category === category;
+      const searchMatch = matchesSearch(product, query);
+      return categoryMatch && searchMatch;
+    });
+  }, [category, query]);
 
   const favoriteProducts = products.filter((p) => favorites.includes(p.id));
   const itemCount = cart.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
@@ -209,8 +240,16 @@ function App() {
         </nav>
         <div className="top-actions">
           <div className="search-box">
-            <Search size={17} />
-            <input aria-label="Search menu" value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search burger..." />
+            <Search size={17} aria-hidden="true" />
+            <input
+              type="text"
+              aria-label="Search menu"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search burger..."
+              autoComplete="off"
+              spellCheck={false}
+            />
           </div>
           <button className="bag-button" onClick={() => setCartOpen(true)} aria-label="Open cart">
             <ShoppingBag size={20} />
