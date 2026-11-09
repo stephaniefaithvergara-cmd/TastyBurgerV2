@@ -124,16 +124,11 @@ export function matchesSearch(product: Product, searchQuery: string): boolean {
     categoryAliases.push("fries", "fry", "french fries");
   }
 
-  const badge = product.badge ? product.badge.toLowerCase() : "";
-  const description = product.description.toLowerCase();
-
   return terms.every((term) => {
     return (
       name.includes(term) ||
       category.includes(term) ||
-      categoryAliases.some((alias) => alias.includes(term) || term.includes(alias)) ||
-      badge.includes(term) ||
-      description.includes(term)
+      categoryAliases.some((alias) => alias.includes(term) || term.includes(alias))
     );
   });
 }
