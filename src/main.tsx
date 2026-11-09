@@ -112,7 +112,7 @@ function FriesImage({ product }: { product: Product }) {
   const images = product.images?.length ? product.images : [product.image];
   useEffect(() => {
     if (images.length < 2) return;
-    const timer = window.setInterval(() => setIndex((value) => (value + 1) % images.length), 2600);
+    const timer = window.setInterval(() => setIndex((value: number) => (value + 1) % images.length), 2600);
     return () => window.clearInterval(timer);
   }, [images.length]);
   return <img src={images[index % images.length]} alt={product.name} />;
@@ -161,25 +161,25 @@ function App() {
   }), [category, normalizedQuery]);
 
   const favoriteProducts = products.filter((p) => favorites.includes(p.id));
-  const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const itemCount = cart.reduce((sum: number, item: CartItem) => sum + item.quantity, 0);
   const uniqueCartItems = cart.length;
-  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const total = cart.reduce((sum: number, item: CartItem) => sum + item.price * item.quantity, 0);
 
   const toggleFavorite = (id: string) => {
-    setFavorites((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id]);
+    setFavorites((current: string[]) => current.includes(id) ? current.filter((item: string) => item !== id) : [...current, id]);
     setNotice(favorites.includes(id) ? "Removed from favorites" : "Added to favorites");
   };
 
   const addToCart = (product: Product) => {
-    setCart((current) => current.some((item) => item.id === product.id)
-      ? current.map((item) => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item)
+    setCart((current: CartItem[]) => current.some((item: CartItem) => item.id === product.id)
+      ? current.map((item: CartItem) => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item)
       : [...current, { ...product, quantity: 1 }]
     );
     setNotice(`${product.name} added to cart`);
   };
 
   const changeQuantity = (id: string, delta: number) => {
-    setCart((current) => current.flatMap((item) => {
+    setCart((current: CartItem[]) => current.flatMap((item: CartItem) => {
       if (item.id !== id) return [item];
       const quantity = item.quantity + delta;
       return quantity > 0 ? [{ ...item, quantity }] : [];
@@ -299,7 +299,7 @@ function App() {
         <aside className="cart-drawer" onClick={(e) => e.stopPropagation()}>
           <div className="cart-header"><div><p className="section-kicker">YOUR ORDER</p><h2>Cart <span>{uniqueCartItems} items</span></h2></div><button onClick={() => setCartOpen(false)} className="close-button" aria-label="Close cart"><X /></button></div>
           <div className="cart-items">
-            {cart.length ? cart.map((item) => <div className="cart-line" key={item.id}><div className="cart-thumb">{item.image ? <img src={item.image} alt="" /> : <FriesArt />}</div><div className="cart-line-info"><strong>{item.name}</strong><span>{peso(item.price)}</span><div className="quantity"><button type="button" aria-label={`Decrease ${item.name}`} onClick={() => changeQuantity(item.id, -1)}><Minus size={14} /></button><b>{item.quantity}</b><button type="button" aria-label={`Increase ${item.name}`} onClick={() => changeQuantity(item.id, 1)}><Plus size={14} /></button><button type="button" className="trash" aria-label={`Remove ${item.name}`} onClick={() => setCart((c) => c.filter((x) => x.id !== item.id))}><Trash2 size={15} /></button></div></div></div>) : <div className="empty-cart"><ShoppingBag size={38} /><h3>Your cart is empty</h3><p>Add your favorite burger or fries.</p><button onClick={() => setCartOpen(false)}>BROWSE MENU</button></div>}
+            {cart.length ? cart.map((item) => <div className="cart-line" key={item.id}><div className="cart-thumb">{item.image ? <img src={item.image} alt="" /> : <FriesArt />}</div><div className="cart-line-info"><strong>{item.name}</strong><span>{peso(item.price)}</span><div className="quantity"><button type="button" aria-label={`Decrease ${item.name}`} onClick={() => changeQuantity(item.id, -1)}><Minus size={14} /></button><b>{item.quantity}</b><button type="button" aria-label={`Increase ${item.name}`} onClick={() => changeQuantity(item.id, 1)}><Plus size={14} /></button><button type="button" className="trash" aria-label={`Remove ${item.name}`} onClick={() => setCart((c: CartItem[]) => c.filter((x: CartItem) => x.id !== item.id))}><Trash2 size={15} /></button></div></div></div>) : <div className="empty-cart"><ShoppingBag size={38} /><h3>Your cart is empty</h3><p>Add your favorite burger or fries.</p><button onClick={() => setCartOpen(false)}>BROWSE MENU</button></div>}
           </div>
           <div className="cart-summary"><div><span>Subtotal</span><strong>{peso(total)}</strong></div><div><span>Delivery</span><span className="free">FREE</span></div><div className="total-row"><span>Total</span><strong>{peso(total)}</strong></div><button className="checkout-button" disabled={!cart.length} onClick={checkout}>CHECKOUT <ArrowRight size={17} /></button></div>
         </aside>
