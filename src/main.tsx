@@ -246,10 +246,23 @@ function App() {
               aria-label="Search menu"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") setQuery("");
+              }}
               placeholder="Search burger..."
               autoComplete="off"
               spellCheck={false}
             />
+            {query && (
+              <button
+                type="button"
+                className="search-clear-btn"
+                onClick={() => setQuery("")}
+                aria-label="Clear search input"
+              >
+                <X size={15} />
+              </button>
+            )}
           </div>
           <button className="bag-button" onClick={() => setCartOpen(true)} aria-label="Open cart">
             <ShoppingBag size={20} />
@@ -314,7 +327,26 @@ function App() {
               </article>
             ))}
           </div>
-          {!visibleProducts.length && <div className="no-results"><Search size={28} /><h3>No menu item found</h3><p>Try another burger or fries.</p></div>}
+          {!visibleProducts.length && (
+            <div className="no-results" role="status" aria-live="polite">
+              <Search size={28} aria-hidden="true" />
+              <h3>No menu item found</h3>
+              <p>
+                {query.trim()
+                  ? `No matching items found for "${query.trim()}". Try another search or clear the filter.`
+                  : "Try another burger or fries."}
+              </p>
+              {query.trim() && (
+                <button
+                  type="button"
+                  className="clear-search-button"
+                  onClick={() => setQuery("")}
+                >
+                  Clear search
+                </button>
+              )}
+            </div>
+          )}
         </section>
 
         <section className="favorites-section" id="favorites">
